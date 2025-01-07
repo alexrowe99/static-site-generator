@@ -7,10 +7,10 @@ from io import StringIO
 
 class TestHTMLNode(TestCase):
 	def test_repr(self):
-		node = HTMLNode("img","Test node",props={"href":"img.png"})
+		node = HTMLNode("img","Test node", [HTMLNode()],{"href":"img.png"})
 		with patch('sys.stdout', new = StringIO()) as fake_out: 
 			print(node)
-			self.assertEqual(fake_out.getvalue(), "HTMLNode(tag=img, value=Test node, children=None, props={'href': 'img.png'})\n")
+			self.assertEqual(fake_out.getvalue(), "HTMLNode(tag=img, value=Test node, children=[HTMLNode(tag=None, value=None, children=None, props=None)], props={'href': 'img.png'})\n")
 	def test_tag(self):
 		node = HTMLNode("img","Test node",props={"href":"img.png"})
 		self.assertEqual(node.tag, "img")
