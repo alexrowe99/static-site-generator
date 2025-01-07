@@ -5,7 +5,7 @@ class HTMLNode():
 		self.children = children
 		self.props = props
 	def to_html(self):
-		raise NotImplementedError()
+		raise NotImplementedError("to_html not implemented for parent class HTMLNode; Use child classes ParentNode or LeafNode")
 	def props_to_html(self):
 		attr = ""
 		if self.props:
