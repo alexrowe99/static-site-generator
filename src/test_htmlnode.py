@@ -32,6 +32,10 @@ class TestHTMLNode(TestCase):
 		node = HTMLNode("img","Test node",props={"href":"img.png", "alt":"an image"})
 		props = node.props_to_html()
 		self.assertEqual(props, " href=\"img.png\" alt=\"an image\"")
+	def test_props_to_html_no_props(self):
+		node = HTMLNode("div","Test node")
+		props = node.props_to_html()
+		self.assertEqual(props, "")
 
 if __name__ == "__main__":
 	main()
