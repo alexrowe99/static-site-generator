@@ -1,9 +1,6 @@
 from unittest import TestCase, main
 
 from leafnode import LeafNode
-from unittest.mock import patch
-from io import StringIO
-
 
 class TestLeafNode(TestCase):
 	def test_to_html_no_value(self):
