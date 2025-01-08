@@ -76,6 +76,10 @@ class TestSplitNodes(TestCase):
 		self.assertEqual(split_nodes[2], TextNode(" and some not and ", TextType.NORMAL))
 		self.assertEqual(split_nodes[3], TextNode("some italic text", TextType.ITALIC))
 		self.assertEqual(split_nodes[4], TextNode(" and again not", TextType.NORMAL))
+	def test_invalid(self):
+		node = TextNode("This is *text is missing a closing asterisk", TextType.NORMAL)
+		with self.assertRaises(Exception):
+			split_nodes = split_nodes_delimiter([node], "*", TextType.ITALIC)
 
 if __name__ == "__main__":
 	main()
