@@ -93,6 +93,62 @@ class TestExtractFunctions(TestCase):
 	def test_image_and_link(self):
 		self.assertEqual(extract_markdown_images("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [to youtube](https://www.youtube.com/@bootdotdev)"), [("rick roll", "https://i.imgur.com/aKaOqIh.gif")])
 		self.assertEqual(extract_markdown_links("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [to youtube](https://www.youtube.com/@bootdotdev)"), [("to youtube", "https://www.youtube.com/@bootdotdev")])
+
+class TestSplitImageLink(TestCase):
+	def test_image_node(self):
+		node = TextNode("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg) bottom text", TextType.NORMAL)
+		new_nodes = split_nodes_image([node])
+		self.assertEqual(new_nodes[0], TextNode("This is text with a ", TextType.NORMAL))
+		self.assertEqual(new_nodes[1], TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"))
+		self.assertEqual(new_nodes[2], TextNode(" and ", TextType.NORMAL))
+		self.assertEqual(new_nodes[3], TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"))
+		self.assertEqual(new_nodes[4], TextNode(" bottom text", TextType.NORMAL))
+	def test_link_node(self):
+		node = TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) bottom text", TextType.NORMAL)
+		new_nodes = split_nodes_link([node])
+		self.assertEqual(new_nodes[0], TextNode("This is text with a link ", TextType.NORMAL))
+		self.assertEqual(new_nodes[1], TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"))
+		self.assertEqual(new_nodes[2], TextNode(" and ", TextType.NORMAL))
+		self.assertEqual(new_nodes[3], TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"))
+		self.assertEqual(new_nodes[4], TextNode(" bottom text", TextType.NORMAL))
+	def test_invalid_image_node(self):
+		node = TextNode("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg) bottom text", TextType.NORMAL)
+		new_nodes = split_nodes_image([node])
+		self.assertEqual(new_nodes[0], TextNode("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif and ", TextType.NORMAL))
+		self.assertEqual(new_nodes[1], TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"))
+		self.assertEqual(new_nodes[2], TextNode(" bottom text", TextType.NORMAL))
+	def test_invalid_link_node(self):
+		node = TextNode("This is text with a link [to boot dev](https://www.boot.dev and [to youtube](https://www.youtube.com/@bootdotdev) bottom text", TextType.NORMAL)
+		new_nodes = split_nodes_link([node])
+		self.assertEqual(new_nodes[0], TextNode("This is text with a link [to boot dev](https://www.boot.dev and ", TextType.NORMAL))
+		self.assertEqual(new_nodes[1], TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"))
+		self.assertEqual(new_nodes[2], TextNode(" bottom text", TextType.NORMAL))
+	def test_image_and_link(self):
+		node = TextNode("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [to youtube](https://www.youtube.com/@bootdotdev) bottom text", TextType.NORMAL)
+		new_nodes = split_nodes_image(split_nodes_link([node]))
+		self.assertEqual(new_nodes[0], TextNode("This is text with a ", TextType.NORMAL))
+		self.assertEqual(new_nodes[1], TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"))
+		self.assertEqual(new_nodes[2], TextNode(" and ", TextType.NORMAL))
+		self.assertEqual(new_nodes[3], TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"))
+		self.assertEqual(new_nodes[4], TextNode(" bottom text", TextType.NORMAL))
+	def test_image_node_with_delimiter(self):
+		node = TextNode("**This is text** with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg) bottom text", TextType.NORMAL)
+		new_nodes = split_nodes_delimiter(split_nodes_image([node]), "**", TextType.BOLD)
+		self.assertEqual(new_nodes[0], TextNode("This is text", TextType.BOLD))
+		self.assertEqual(new_nodes[1], TextNode(" with a ", TextType.NORMAL))
+		self.assertEqual(new_nodes[2], TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"))
+		self.assertEqual(new_nodes[3], TextNode(" and ", TextType.NORMAL))
+		self.assertEqual(new_nodes[4], TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"))
+		self.assertEqual(new_nodes[5], TextNode(" bottom text", TextType.NORMAL))
+	def test_link_node_with_delimiter(self):
+		node = TextNode("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) `bottom text`", TextType.NORMAL)
+		new_nodes = split_nodes_delimiter(split_nodes_link([node]), "`", TextType.CODE)
+		self.assertEqual(new_nodes[0], TextNode("This is text with a link ", TextType.NORMAL))
+		self.assertEqual(new_nodes[1], TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"))
+		self.assertEqual(new_nodes[2], TextNode(" and ", TextType.NORMAL))
+		self.assertEqual(new_nodes[3], TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"))
+		self.assertEqual(new_nodes[4], TextNode(" ", TextType.NORMAL))
+		self.assertEqual(new_nodes[5], TextNode("bottom text", TextType.CODE))
 	
 if __name__ == "__main__":
 	main()
