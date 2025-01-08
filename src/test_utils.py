@@ -81,5 +81,18 @@ class TestSplitNodes(TestCase):
 		with self.assertRaises(Exception):
 			split_nodes = split_nodes_delimiter([node], "*", TextType.ITALIC)
 
+class TestExtractFunctions(TestCase):
+	def test_image(self):
+		self.assertEqual(extract_markdown_images("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"), [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")])
+	def test_link(self):
+		self.assertEqual(extract_markdown_links("This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"), [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")])
+	def test_invalid_image(self):
+		self.assertEqual(extract_markdown_images("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"), [("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")])
+	def test_invalid_link(self):
+		self.assertEqual(extract_markdown_links("This is text with a link [to boot dev](https://www.boot.dev and [to youtube](https://www.youtube.com/@bootdotdev)"), [("to youtube", "https://www.youtube.com/@bootdotdev")])
+	def test_image_and_link(self):
+		self.assertEqual(extract_markdown_images("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [to youtube](https://www.youtube.com/@bootdotdev)"), [("rick roll", "https://i.imgur.com/aKaOqIh.gif")])
+		self.assertEqual(extract_markdown_links("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [to youtube](https://www.youtube.com/@bootdotdev)"), [("to youtube", "https://www.youtube.com/@bootdotdev")])
+	
 if __name__ == "__main__":
 	main()
