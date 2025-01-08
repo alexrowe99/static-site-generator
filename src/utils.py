@@ -63,3 +63,22 @@ def split_nodes_link(old_nodes):
 		if start_index < len(node.text):
 			new_nodes.append(TextNode(node.text[start_index:], node.text_type, node.url))
 	return new_nodes
+def text_to_textnodes(text):
+	node = TextNode(text, TextType.NORMAL)
+	return split_nodes_link(
+		split_nodes_image(
+			split_nodes_delimiter(
+				split_nodes_delimiter(
+					split_nodes_delimiter(
+						[node],
+						"**",
+						TextType.BOLD
+					),
+					"*",
+					TextType.ITALIC
+				),
+				"`",
+				TextType.CODE
+			)
+		)
+	)
