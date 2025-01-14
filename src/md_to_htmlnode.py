@@ -1,5 +1,5 @@
 from utils import markdown_to_blocks, block_to_block_type, text_to_textnodes, text_node_to_html_node
-from htmlnode import HTMLNode
+from parentnode import ParentNode
 
 def text_to_html(text):
 	textnodes = text_to_textnodes(text)
@@ -14,36 +14,36 @@ def heading_to_html(heading):
 		headingtype += 1
 	content = heading[headingtype+1:]
 	children = text_to_html(content)
-	return HTMLNode("h"+headingtype, None, children)
+	return ParentNode("h"+str(headingtype), children)
 
 def code_to_html(code):
 	content = code.split("```")[1]
 	children = text_to_html(content)
-	return HTMLNode("code", None, children)
+	return ParentNode("code", children)
 
 def quote_to_html(quote):
 	lines = quote.split("> ")
 	content = "".join(lines)
 	children = text_to_html(content)
-	return HTMLNode("blockquote", None, children)
+	return ParentNode("blockquote", children)
 
 def li_to_html(content):
 	children = text_to_html(content)
-	return HTMLNode("li", None, children)
+	return ParentNode("li", children)
 
 def ulist_to_html(ulist):
 	lines = ulist.split("\n")
 	children = []
 	for line in lines:
 		children.append(li_to_html(line[2:]))
-	return HTMLNode("ul", None, children)
+	return ParentNode("ul", children)
 
 def olist_to_html(ulist):
 	lines = ulist.split("\n")
 	children = []
 	for line in lines:
 		children.append(li_to_html(line[line.index('.')+2:]))
-	return HTMLNode("ol", None, children)
+	return ParentNode("ol", children)
 
 def md_to_html_node(markdown):
 	blocks = markdown_to_blocks(markdown)
@@ -53,20 +53,15 @@ def md_to_html_node(markdown):
 		match (btype):
 			case "heading":
 				nodes.append(heading_to_html(block))
-				break
 			case "code":
 				nodes.append(code_to_html(block))
-				break
 			case "quote":
 				nodes.append(quote_to_html(block))
-				break
 			case "ulist":
 				nodes.append(ulist_to_html(block))
-				break
 			case "olist":
 				nodes.append(olist_to_html(block))
-				break
 			case _:
-				nodes.append(HTMLNode("p", None, text_to_html(block)))
-	return HTMLNode("html", None, [HTMLNode("body", None, nodes)])
+				nodes.append(ParentNode("p", text_to_html(block)))
+	return ParentNode("html", [ParentNode("body", nodes)])
 	
