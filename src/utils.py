@@ -120,5 +120,9 @@ def block_to_block_type(block):
 			line_no = new_line_no
 		if olist:
 			return "olist"
-
 	return "normal"
+
+def extract_title(markdown):
+	lines = markdown.split("\n")
+	heading = list(filter(lambda line: line.startswith("# "), lines))[0]
+	return heading[2:]
