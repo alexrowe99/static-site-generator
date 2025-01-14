@@ -187,6 +187,51 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
 			]
 		)
 
+class TestBlocktoBlockType(TestCase):
+	def test_headings(self):
+		h0 = "not heading"
+		h1 = "# heading 1"
+		h2 = "## heading 2"
+		h3 = "### heading 3"
+		h4 = "#### heading 4"
+		h5 = "##### heading 5"
+		h6 = "###### heading 6"
+		h7 = "####### heading 7 (not real)"
+
+		self.assertEqual(block_to_block_type(h0), "normal")
+		self.assertEqual(block_to_block_type(h1), "heading")
+		self.assertEqual(block_to_block_type(h2), "heading")
+		self.assertEqual(block_to_block_type(h3), "heading")
+		self.assertEqual(block_to_block_type(h4), "heading")
+		self.assertEqual(block_to_block_type(h5), "heading")
+		self.assertEqual(block_to_block_type(h6), "heading")
+		self.assertEqual(block_to_block_type(h7), "normal")
+	def test_code(self):
+		code = """```this
+		is some
+		code```"""
+		self.assertEqual(block_to_block_type(code), "code")
+	def test_quote(self):
+		quote = """> a quote
+		>quote continued
+		> more quote"""
+		self.assertEqual(block_to_block_type(quote), "quote")
+	def test_ulist(self):
+		ulist = """* a ulist
+		- ulist continued
+		* more ulist"""
+		self.assertEqual(block_to_block_type(ulist), "ulist")
+	def test_olist(self):
+		olist = """1. a olist
+		2. olist continued
+		3. more olist"""
+		notolist = """1. a olist
+		2. olist continued
+		3. more olist
+		5. out of order whoops"""
+		self.assertEqual(block_to_block_type(olist), "olist")
+		self.assertEqual(block_to_block_type(notolist), "normal")
+
 	
 if __name__ == "__main__":
 	main()

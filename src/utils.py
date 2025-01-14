@@ -90,4 +90,35 @@ def markdown_to_blocks(markdown):
 			continue
 		blocks[blocks.index(block)] = block.strip()
 	return blocks
+def block_to_block_type(block):
+	heading_pattern = re.compile(r"^(#{1,6})\s+(.*)")
+	if heading_pattern.match(block):
+		return "heading"
 	
+	code_pattern = re.compile(r"^(`{3})([\s\S]*)\1")
+	if code_pattern.match(block):
+		return "code"
+	
+	quote_pattern = re.compile(r"^(>)(.*)", re.M)
+	if quote_pattern.match(block):
+		return "quote"
+	
+	ulist_pattern = re.compile(r"^(\* |- )(.*)", re.M)
+	if ulist_pattern.match(block):
+		return "ulist"
+	
+	olist_pattern = re.compile(r"^(\d+. )(.*)", re.M)
+	if olist_pattern.match(block):
+		lines = block.split('\n')
+		line_no = 0
+		olist = True
+		for line in lines:
+			new_line_no = int(line.split('.')[0])
+			if new_line_no != line_no+1:
+				olist = False
+				break
+			line_no = new_line_no
+		if olist:
+			return "olist"
+
+	return "normal"
