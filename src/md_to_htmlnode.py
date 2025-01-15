@@ -63,5 +63,5 @@ def md_to_html_node(markdown):
 				nodes.append(olist_to_html(block))
 			case _:
 				nodes.append(ParentNode("p", text_to_html(block)))
-	return ParentNode("html", [ParentNode("body", nodes)])
+	return ParentNode("div", nodes)
 	
