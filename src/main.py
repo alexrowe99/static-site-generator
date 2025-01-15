@@ -42,9 +42,18 @@ def generate_page(from_path, template_path, dest_path):
 
 	dest_file.write(template.replace("{{ Title }}", title).replace("{{ Content }}", html_str))
 
+def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
+	files = os.scandir(dir_path_content)
+	for file in files:
+		if file.is_dir():
+			os.mkdir(dest_dir_path+"/"+file.name)
+			generate_page_recursive(dir_path_content+"/"+file.name, template_path, dest_dir_path+"/"+file.name)
+		elif file.is_file() and file.name.endswith(".md"):
+			generate_page(dir_path_content+"/"+file.name, template_path, dest_dir_path+"/"+file.name.replace(".md", ".html"))
+
 def main():
 	copy_static_to_public("./static", True)
-	generate_page("./content/index.md", "./template.html", "./public/index.html")
+	generate_page_recursive("./content", "./template.html", "./public")
 
 if __name__ == "__main__":
 	main()
