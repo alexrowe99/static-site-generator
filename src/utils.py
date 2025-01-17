@@ -57,9 +57,11 @@ def split_nodes_link(old_nodes):
 		start_index = 0
 		for link in links:
 			inline_link = f'[{link[0]}]({link[1]})'
-			new_nodes.append(TextNode(node.text[start_index:node.text.index(inline_link)], node.text_type, node.url))
+			inline_link_index = node.text.index(inline_link)
+			if inline_link_index > start_index:
+				new_nodes.append(TextNode(node.text[start_index:inline_link_index], node.text_type, node.url))
 			new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
-			start_index = node.text.index(inline_link)+len(inline_link)
+			start_index = inline_link_index+len(inline_link)
 		if start_index < len(node.text):
 			new_nodes.append(TextNode(node.text[start_index:], node.text_type, node.url))
 	return new_nodes
