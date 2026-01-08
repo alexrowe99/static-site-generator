@@ -76,7 +76,7 @@ def text_to_textnodes(text):
 						"**",
 						TextType.BOLD
 					),
-					"*",
+					"_",
 					TextType.ITALIC
 				),
 				"`",
