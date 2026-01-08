@@ -1,6 +1,7 @@
 from textnode import TextNode, TextType
 import os
 import shutil
+import sys
 from utils import *
 from md_to_htmlnode import md_to_html_node
 
@@ -13,21 +14,21 @@ def delete_old_files(path):
 		elif file.is_file():
 			os.remove(path+"/"+file.name)
 
-def copy_static_to_public(path, delete=False):
+def copy_static_to_docs(path, delete=False):
 	if delete:
-		delete_old_files("./public")
+		delete_old_files("./docs")
 	files = os.scandir(path)
 	for file in files:
 		if file.is_dir():
-			os.mkdir(path.replace("static","public")+"/"+file.name)
-			copy_static_to_public(path+"/"+file.name)
+			os.mkdir(path.replace("static","docs")+"/"+file.name)
+			copy_static_to_docs(path+"/"+file.name)
 		elif file.is_file():
 			filepath = path+"/"+file.name
-			newpath = path.replace("static", "public")+"/"+file.name
+			newpath = path.replace("static", "docs")+"/"+file.name
 			print(f"copying file from {filepath} to {newpath}")
 			shutil.copyfile(filepath, newpath)
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(basepath, from_path, template_path, dest_path):
 	print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
 	md_file = open(from_path, "r")
@@ -40,20 +41,26 @@ def generate_page(from_path, template_path, dest_path):
 	html_str = md_to_html_node(markdown).to_html()
 	title = extract_title(markdown)
 
-	dest_file.write(template.replace("{{ Title }}", title).replace("{{ Content }}", html_str))
+	dest_file.write(template
+				 .replace("{{ Title }}", title)
+				 .replace("{{ Content }}", html_str)
+				 .replace("href=\"/", "href=\"{basepath}")
+				 .replace("src=\"/", "src=\"{basepath}")
+			)
 
-def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_page_recursive(basepath, dir_path_content, template_path, dest_dir_path):
 	files = os.scandir(dir_path_content)
 	for file in files:
 		if file.is_dir():
 			os.mkdir(dest_dir_path+"/"+file.name)
-			generate_page_recursive(dir_path_content+"/"+file.name, template_path, dest_dir_path+"/"+file.name)
+			generate_page_recursive(basepath, dir_path_content+"/"+file.name, template_path, dest_dir_path+"/"+file.name)
 		elif file.is_file() and file.name.endswith(".md"):
-			generate_page(dir_path_content+"/"+file.name, template_path, dest_dir_path+"/"+file.name.replace(".md", ".html"))
+			generate_page(basepath, dir_path_content+"/"+file.name, template_path, dest_dir_path+"/"+file.name.replace(".md", ".html"))
 
 def main():
-	copy_static_to_public("./static", True)
-	generate_page_recursive("./content", "./template.html", "./public")
+	basepath = sys.argv[0] if sys.argv[0] else '/'
+	copy_static_to_docs("./static", False)
+	generate_page_recursive(basepath, "./content", "./template.html", "./docs")
 
 if __name__ == "__main__":
 	main()
