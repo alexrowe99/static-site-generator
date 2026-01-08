@@ -44,8 +44,8 @@ def generate_page(basepath, from_path, template_path, dest_path):
 	dest_file.write(template
 				 .replace("{{ Title }}", title)
 				 .replace("{{ Content }}", html_str)
-				 .replace("href=\"/", f"href=\"{basepath}/")
-				 .replace("src=\"/", f"src=\"{basepath}/")
+				 .replace("href=\"/", f"href=\"{basepath}")
+				 .replace("src=\"/", f"src=\"{basepath}")
 			)
 
 def generate_page_recursive(basepath, dir_path_content, template_path, dest_dir_path):
@@ -58,7 +58,7 @@ def generate_page_recursive(basepath, dir_path_content, template_path, dest_dir_
 			generate_page(basepath, dir_path_content+"/"+file.name, template_path, dest_dir_path+"/"+file.name.replace(".md", ".html"))
 
 def main():
-	basepath = sys.argv[0] if sys.argv[0] else '/'
+	basepath = sys.argv[1] if sys.argv[1] else '/'
 	copy_static_to_docs("./static", True)
 	generate_page_recursive(basepath, "./content", "./template.html", "./docs")
 
